@@ -19,7 +19,7 @@ class LogisticModel(object):
 
         costs = []
         best_validation_error = 1
-        for i in xrange(epochs):
+        for i in range(epochs):
                 # forward propagation and cost calculation
                 pY = self.forward(X)
 
@@ -33,10 +33,10 @@ class LogisticModel(object):
                     c = sigmoid_cost(Yvalid, pYvalid)
                     costs.append(c)
                     e = error_rate(Yvalid, np.round(pYvalid))
-                    print "i:", i, "cost:", c, "error:", e
+                    print("i:", i, "cost:", c, "error:", e)
                     if e < best_validation_error:
                         best_validation_error = e
-        print "best_validation_error:", best_validation_error
+        print("best_validation_error:", best_validation_error)
 
         if show_fig:
             plt.plot(costs)

@@ -1,18 +1,19 @@
 import numpy as np
 import pandas as pd
+from sklearn.utils import shuffle
 
-
+# M1 - input size, M2 - output size
 def init_weight_and_bias(M1, M2):
     W = np.random.randn(M1, M2) / np.sqrt(M1 + M2)
-    b = np.zeros(M2)
-    return W.astype(np.float32), b.astype(np.float32)
+    b = np.zeros(M2)  # bias as zeroes
+    return W.astype(np.float32), b.astype(np.float32)  # turn into float32 for Theano and TensorFlow
 
-
+# Used for convolutional neural networks
 def init_filter(shape, poolsz):
     w = np.random.randn(*shape) / np.sqrt(np.prod(shape[1:]) + shape[0]*np.prod(shape[2:] / np.prod(poolsz)))
     return w.astype(np.float32)
 
-
+# For activation function in a neural network
 def relu(x):
     return x * (x > 0)
 
@@ -25,7 +26,7 @@ def softmax(A):
     expA = np.exp(A)
     return expA / expA.sum(axis=1, keepdims=True)
 
-
+# Calculates the cross entropy
 def sigmoid_cost(T, Y):
     return -(T*np.log(Y) + (1-T)*np.log(1-Y)).sum()
 
@@ -44,12 +45,12 @@ def cost2(T, Y):
 def error_rate(targets, predictions):
     return np.mean(targets != predictions)
 
-
+# Nx1 vector turned into an indicator matrix with 0 and 1 only
 def y2indicator(y):
     N = len(y)
     K = len(set(y))
     ind = np.zeros((N, K))
-    for i in xrange(N):
+    for i in range(N):
         ind[i, y[i]] = 1
     return ind
 
@@ -59,7 +60,7 @@ def getData(balance_ones=True):
     # N = 35887
     Y = []
     X = []
-    first = True
+    first = True  # skip the first line as it is headers
     for line in open('fer2013.csv'):
         if first:
             first = False
@@ -70,6 +71,7 @@ def getData(balance_ones=True):
 
     X, Y = np.array(X) / 255.0, np.array(Y)
 
+    # classes are imbalanced. So we repeat class2 nine times! Method 2 of dealing with imbalance form the notes
     if balance_ones:
         # balance the 1 class
         X0, Y0 = X[Y!=1, :], Y[Y!=1]
@@ -110,7 +112,7 @@ def crossValidation(model, X, Y, K=5):
     X, Y = shuffle(X, Y)
     sz = len(Y) / K
     errors = []
-    for k in xrange(K):
+    for k in range(K):
         xtr = np.concatenate([ X[:k*sz, :], X[(k*sz + sz):, :] ])
         ytr = np.concatenate([ Y[:k*sz], Y[(k*sz + sz):] ])
         xte = X[k*sz:(k*sz + sz), :]
@@ -119,5 +121,5 @@ def crossValidation(model, X, Y, K=5):
         model.fit(xtr, ytr)
         err = model.score(xte, yte)
         errors.append(err)
-    print "errors:", errors
+    print("errors:", errors)
     return np.mean(errors)
